@@ -38,15 +38,18 @@ _dummy_hash_used = False
 def _patched_open(file, mode='r', *args, **kwargs):
     global _skip_kwave_bin, _dummy_hash_used
     
-    # Check for kwave binary file read (for hashing)
-    if _skip_kwave_bin and 'kwave' in str(file) and 'bin' in str(file) and mode == 'rb':
+    # Convert Path to string for checking
+    file_str = str(file)
+    
+    # Check for kwave binary file read (for hashing) - look for kspaceFirstOrder
+    if _skip_kwave_bin and 'kwave' in file_str and 'kspaceFirstOrder' in file_str and mode == 'rb':
         _dummy_hash_used = True
         # Return a fake file object that produces a dummy hash
         import io
         return io.BytesIO(b'dummy')
     
     # Check for metadata.json write (after hash)
-    if _dummy_hash_used and 'metadata.json' in str(file) and 'w' in mode:
+    if 'kwave' in file_str and 'metadata.json' in file_str and 'w' in mode:
         _dummy_hash_used = False
         _skip_kwave_bin = False
         # Return a fake writable file
