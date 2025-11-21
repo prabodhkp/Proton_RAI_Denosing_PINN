@@ -359,6 +359,11 @@ def main():
             denoiser.save_results()
             st.success("✅ Denoising complete!")
             
+            # Memory cleanup
+            import gc
+            del denoiser
+            gc.collect()
+            
             # ================================================================
             # STAGE 2: Time Reversal
             # ================================================================
@@ -411,6 +416,10 @@ def main():
             
             reconstructor.save_results(tr_results)
             st.success("✅ Time reversal complete!")
+            
+            # Memory cleanup
+            del reconstructor
+            gc.collect()
             
             # ================================================================
             # STAGE 3: PINN Prediction
