@@ -227,6 +227,13 @@ def main():
             help="Uses default if not provided"
         )
         
+        # Detector Coordinates
+        detector_file = st.file_uploader(
+            "Detector Coordinates (.mat) - Optional",
+            type=['mat'],
+            help="MatrixArray detector coordinates file"
+        )
+        
         st.markdown("---")
         
         # Validation check
@@ -306,6 +313,12 @@ def main():
             
             if pinn_model:
                 config.pinn_weights = save_uploaded_file(pinn_model, working_dir)
+            
+            # Handle detector coordinates upload
+            if detector_file:
+                config.detector_file = save_uploaded_file(detector_file, working_dir)
+            else:
+                config.detector_file = "MatrixAray_det_cords.mat"
             
             config.setup_paths()
             
