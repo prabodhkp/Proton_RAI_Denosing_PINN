@@ -17,28 +17,19 @@ import shutil
 # Add current directory to path
 sys.path.insert(0, os.path.dirname(__file__))
 
-# Handle k-Wave binary installation issue in Streamlit Cloud
-try:
-    import kwave
-except PermissionError:
-    # k-Wave tried to install binaries and failed - patch it
-    import sys
-    import importlib
-    # Remove failed import
-    if 'kwave' in sys.modules:
-        del sys.modules['kwave']
-    # Monkey-patch os.makedirs to ignore kwave/bin directory
-    import os as _os
-    _original_makedirs = _os.makedirs
-    def _patched_makedirs(name, *args, **kwargs):
-        if 'kwave' in str(name) and 'bin' in str(name):
-            return  # Skip creating kwave bin directory
-        return _original_makedirs(name, *args, **kwargs)
-    _os.makedirs = _patched_makedirs
-    # Now import kwave again
-    import kwave
-    # Restore original makedirs
-    _os.makedirs = _original_makedirs
+# Pre-patch k-Wave to skip binary installation
+# Inject patched functions before kwave's __init__ runs
+import sys
+import types
+
+# Create a minimal kwave module stub
+_kwave_stub = types.ModuleType('kwave')
+_kwave_stub.binaries_present = lambda: True
+_kwave_stub.install_binaries = lambda: None
+sys.modules['kwave'] = _kwave_stub
+
+# Now import kwave - it will use our patched functions
+import kwave
 
 # Import your modules
 from config import Config
