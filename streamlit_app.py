@@ -17,19 +17,8 @@ import shutil
 # Add current directory to path
 sys.path.insert(0, os.path.dirname(__file__))
 
-# Pre-patch k-Wave to skip binary installation
-# Inject patched functions before kwave's __init__ runs
-import sys
-import types
-
-# Create a minimal kwave module stub
-_kwave_stub = types.ModuleType('kwave')
-_kwave_stub.binaries_present = lambda: True
-_kwave_stub.install_binaries = lambda: None
-sys.modules['kwave'] = _kwave_stub
-
-# Now import kwave - it will use our patched functions
-import kwave
+# Patch k-Wave BEFORE it loads (must be first import)
+import kwave_patch
 
 # Import your modules
 from config import Config
