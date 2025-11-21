@@ -17,6 +17,9 @@ import shutil
 # Add current directory to path
 sys.path.insert(0, os.path.dirname(__file__))
 
+# Disable k-Wave binary auto-download (Streamlit Cloud has no write permission)
+os.environ['KWAVE_SKIP_BINARY_INSTALL'] = '1'
+
 # Import your modules
 from config import Config
 from denoising import Denoiser
