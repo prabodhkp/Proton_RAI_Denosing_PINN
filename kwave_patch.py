@@ -25,8 +25,12 @@ _original_urlretrieve = urllib.request.urlretrieve
 def _patched_urlretrieve(url, filename=None, *args, **kwargs):
     global _skip_kwave_bin
     if _skip_kwave_bin and 'kwave' in str(filename):
-        _skip_kwave_bin = False
+        print(f"✓ Skipping kwave binary download: {filename}")
         return filename, None  # Return dummy response
+    if 'kwave' in str(filename):
+        print(f"✓ Would download kwave binary but makedirs succeeded: {filename}")
+        _skip_kwave_bin = True  # Set flag for subsequent operations
+        return filename, None
     return _original_urlretrieve(url, filename, *args, **kwargs)
 
 urllib.request.urlretrieve = _patched_urlretrieve
