@@ -31,8 +31,8 @@ def _patched_urlretrieve(url, filename=None, *args, **kwargs):
 
 urllib.request.urlretrieve = _patched_urlretrieve
 
-# Patch _hash_file from kwave to return dummy hash
-import hashlib
+# Patch open() to skip hash file reads
+_original_open = open
 _dummy_hash_used = False
 
 def _patched_open(file, mode='r', *args, **kwargs):
@@ -45,11 +45,10 @@ def _patched_open(file, mode='r', *args, **kwargs):
     if _dummy_hash_used and 'metadata.json' in str(file):
         _dummy_hash_used = False
         _skip_kwave_bin = False
-    return open.__original__(file, mode, *args, **kwargs)
+    return _original_open(file, mode, *args, **kwargs)
 
-# Store original open
-if not hasattr(open, '__original__'):
-    open.__original__ = __builtins__['open']
-    __builtins__['open'] = _patched_open
+# Replace built-in open
+import builtins
+builtins.open = _patched_open
 
 print("✓ k-Wave patched for Streamlit Cloud")
