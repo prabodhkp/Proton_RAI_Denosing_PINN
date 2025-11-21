@@ -1,0 +1,10 @@
+tensorflow-cpu==2.13.0
+streamlit==1.28.0
+numpy==1.24.3
+scipy==1.11.3
+matplotlib==3.8.0
+h5py==3.10.0
+opencv-python-headless==4.8.1.78
+protobuf==4.24.4
+k-wave-python
+imageio==2.31.5
