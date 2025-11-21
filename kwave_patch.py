@@ -1,0 +1,34 @@
+"""
+Patch k-Wave to skip binary installation in Streamlit Cloud.
+Must be imported before kwave.
+"""
+import sys
+import os
+
+# Patch os.makedirs and urllib.request.urlretrieve before kwave loads
+_original_makedirs = os.makedirs
+_skip_kwave_bin = False
+
+def _patched_makedirs(name, *args, **kwargs):
+    global _skip_kwave_bin
+    if 'kwave' in str(name) and 'bin' in str(name):
+        _skip_kwave_bin = True
+        return  # Skip kwave bin directory creation
+    return _original_makedirs(name, *args, **kwargs)
+
+os.makedirs = _patched_makedirs
+
+# Patch urlretrieve to skip if makedirs was skipped
+import urllib.request
+_original_urlretrieve = urllib.request.urlretrieve
+
+def _patched_urlretrieve(url, filename=None, *args, **kwargs):
+    global _skip_kwave_bin
+    if _skip_kwave_bin and 'kwave' in str(filename):
+        _skip_kwave_bin = False
+        return filename, None  # Return dummy response
+    return _original_urlretrieve(url, filename, *args, **kwargs)
+
+urllib.request.urlretrieve = _patched_urlretrieve
+
+print("✓ k-Wave patched for Streamlit Cloud")
