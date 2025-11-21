@@ -41,8 +41,9 @@ def _patched_open(file, mode='r', *args, **kwargs):
     # Convert Path to string for checking
     file_str = str(file)
     
-    # Check for kwave binary file read (for hashing) - look for kspaceFirstOrder
-    if _skip_kwave_bin and 'kwave' in file_str and 'kspaceFirstOrder' in file_str and mode == 'rb':
+    # Check for ANY kwave binary file read when skip flag is set
+    if _skip_kwave_bin and 'kwave/bin' in file_str and mode == 'rb':
+        print(f"✓ Skipping kwave binary read: {file_str}")
         _dummy_hash_used = True
         # Return a fake file object that produces a dummy hash
         import io
@@ -50,6 +51,7 @@ def _patched_open(file, mode='r', *args, **kwargs):
     
     # Check for metadata.json write (after hash)
     if 'kwave' in file_str and 'metadata.json' in file_str and 'w' in mode:
+        print(f"✓ Skipping kwave metadata write: {file_str}")
         _dummy_hash_used = False
         _skip_kwave_bin = False
         # Return a fake writable file
